@@ -6,9 +6,10 @@
 -- You can write comments in this file by starting them with two dashes, like
 -- these lines here.
 
-DROP TABLE players;
-DROP TABLE player_standings;
-DROP TABLE matches;
+DROP TABLE IF EXISTS players;
+DROP TABLE IF EXISTS player_standings;
+DROP TABLE IF EXISTS matches;
+
 
 CREATE TABLE matches (
     winner_id int,

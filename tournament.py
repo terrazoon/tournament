@@ -53,11 +53,14 @@ def registerPlayer(name):
     """
     db = psycopg2.connect(database=DBNAME)
     c = db.cursor()
+	
+    """ create player """
     c.execute("insert into players (name) values (%s)", (bleach.clean(name),))  # good
     
+    """ create his first standings """
     c.execute("select id from players where name=%s", (bleach.clean(name),))
     id = c.fetchone();
-    c.execute("insert into player_standings (player_id, wins, matches) values (%d, 0, 0)" % id)
+    c.execute("insert into player_standings (player_id, wins, matches) values (%s, 0, 0)", [id])
 	
     db.commit()
     db.close()
@@ -95,21 +98,23 @@ def reportMatch(winner, loser):
  
     db = psycopg2.connect(database=DBNAME)
     c = db.cursor()
-    c.execute("insert into matches (winner_id, loser_id) values (%d, %d)" % (winner, loser))  
 	
-    c.execute("select wins, matches from player_standings where id=%d" % winner)
+    """ update matches table with the new match """
+    c.execute("insert into matches (winner_id, loser_id) values (%s, %s)", (winner, loser))  
 	
+    """ update player standings for the winner """
+    c.execute("select wins, matches from player_standings where id=%s", [winner])
     winner_result = c.fetchone()
-	
     wins = winner_result[0] + 1
     matches = winner_result[1] + 1
+    c.execute("update player_standings set wins = %s, matches = %s where player_id = %s", [wins, matches, winner])
 	
-    c.execute("update player_standings set wins = %d, matches = %d where player_id = %d" % (wins, matches, winner))
-	
-    c.execute("select matches from player_standings where id=%d" % loser)
+    """ update player standings for the loser """
+    c.execute("select matches from player_standings where id=%s", [loser])
     loser_result = c.fetchone()
     matches = loser_result[0] + 1
-    c.execute("update player_standings set matches = %d where player_id = %d" % (matches, loser))
+    c.execute("update player_standings set matches = %s where player_id = %s",  (matches, loser))
+	
     db.commit()
     db.close()
 
@@ -141,6 +146,8 @@ def swissPairings():
     p2_id = ""
     p2_name = ""
 	
+    """ results should be order from worst players to best and we are guaranteed an even number
+        so take the first two, make a tuple, grab the next two, etc. """
     for p in players:
         if (is_second_pair):
 		    p2_id = p[0]
