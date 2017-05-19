@@ -3,8 +3,9 @@
 # tournament.py -- implementation of a Swiss-system tournament
 #
 
-import psycopg2
+import psycopg2, bleach
 
+DBNAME = "tournament"
 
 def connect():
     """Connect to the PostgreSQL database.  Returns a database connection."""
@@ -12,26 +13,55 @@ def connect():
 
 
 def deleteMatches():
-    """Remove all the match records from the database."""
+    """Remove all the match records from the database """
+    db = psycopg2.connect(database=DBNAME)
+    c = db.cursor()
+    c.execute("delete from matches")
+    c.execute("update player_standings set wins=0, matches=0")
+    db.commit()
+    db.close()
 
 
 def deletePlayers():
     """Remove all the player records from the database."""
+    db = psycopg2.connect(database=DBNAME)
+    c = db.cursor()
+    c.execute("delete from players")
+    c.execute("delete from player_standings")
+    db.commit()
+    db.close()
+    
 
 
 def countPlayers():
     """Returns the number of players currently registered."""
-
+    db = psycopg2.connect(database=DBNAME)
+    c = db.cursor()
+    c.execute("select count(*) from players as player_count")
+    player_count = c.fetchone()
+    db.close()
+    return player_count[0];
 
 def registerPlayer(name):
     """Adds a player to the tournament database.
-  
+	
     The database assigns a unique serial id number for the player.  (This
     should be handled by your SQL database schema, not in your Python code.)
   
     Args:
       name: the player's full name (need not be unique).
     """
+    db = psycopg2.connect(database=DBNAME)
+    c = db.cursor()
+    c.execute("insert into players (name) values (%s)", (bleach.clean(name),))  # good
+    
+    c.execute("select id from players where name=%s", (bleach.clean(name),))
+    id = c.fetchone();
+    c.execute("insert into player_standings (player_id, wins, matches) values (%d, 0, 0)" % id)
+	
+    db.commit()
+    db.close()
+
 
 
 def playerStandings():
@@ -47,6 +77,12 @@ def playerStandings():
         wins: the number of matches the player has won
         matches: the number of matches the player has played
     """
+    db = psycopg2.connect(database=DBNAME)
+    c = db.cursor()
+    c.execute("select player_id, name, wins, matches from player_standings, players where players.id=player_standings.player_id order by wins desc")
+    standings = c.fetchall()
+    db.close()
+    return standings;
 
 
 def reportMatch(winner, loser):
@@ -57,6 +93,26 @@ def reportMatch(winner, loser):
       loser:  the id number of the player who lost
     """
  
+    db = psycopg2.connect(database=DBNAME)
+    c = db.cursor()
+    c.execute("insert into matches (winner_id, loser_id) values (%d, %d)" % (winner, loser))  
+	
+    c.execute("select wins, matches from player_standings where id=%d" % winner)
+	
+    winner_result = c.fetchone()
+	
+    wins = winner_result[0] + 1
+    matches = winner_result[1] + 1
+	
+    c.execute("update player_standings set wins = %d, matches = %d where player_id = %d" % (wins, matches, winner))
+	
+    c.execute("select matches from player_standings where id=%d" % loser)
+    loser_result = c.fetchone()
+    matches = loser_result[0] + 1
+    c.execute("update player_standings set matches = %d where player_id = %d" % (matches, loser))
+    db.commit()
+    db.close()
+
  
 def swissPairings():
     """Returns a list of pairs of players for the next round of a match.
@@ -73,5 +129,25 @@ def swissPairings():
         id2: the second player's unique id
         name2: the second player's name
     """
-
-
+	
+    db = psycopg2.connect(database=DBNAME)
+    c = db.cursor()
+    c.execute("select id, name from player_standings order by (wins * 1000)/matches asc")  
+    players = c.fetchAll()
+    names_and_ids = []
+    is_second_pair = False
+    p1_id = ""
+    p1_name= ""
+    p2_id = ""
+    p2_name = ""
+	
+    for p in players:
+        if (is_second_pair):
+		    p2_id = p[0]
+		    p2_name = p[1]
+		    tup = (p1_id, p1_name, p2_id, p2_name)
+		    names_and_ids.add(tup)
+        else:
+		    p1_id = p[0]
+		    p1_name = p[1]
+    return names_and_ids
