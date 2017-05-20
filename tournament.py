@@ -74,7 +74,7 @@ def playerStandings():
     db = connect()
     c = db.cursor()
 	
-    c.execute("select * from v_rankings order by wins desc")
+    c.execute("select * from v_rankings")
     standings = c.fetchall()
     db.close()
     return standings;
@@ -124,6 +124,9 @@ def swissPairings():
     p2_id = ""
     p2_name = ""
 	
+    if len(players) % 2 != 0:
+        raise ValueError("swissPairings() requires an even number of players")
+   
     """ results should be order from worst players to best and we are guaranteed an even number
         so take the first two, make a tuple, grab the next two, etc. """
     for p in players:
