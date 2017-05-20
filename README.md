@@ -15,13 +15,11 @@ vagrant=> **\i tournament.sql**
 `
 
 # running unit tests
-` 
 <pre>
 vagrant@vagrant:~$ cd /vagrant  
 vagrant@vagrant:/vagrant$ cd tournament  
 vagrant@vagrant:/vagrant/tournament$ python tournament_test.py  
 </pre>
-`
 
 # methods
 **connect()** -- __connect to the tournament database__
