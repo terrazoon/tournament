@@ -7,37 +7,35 @@ python 2.7
 postgres 9.5.6
 
 # installation
-` 
+```
+<pre> 
 vagrant@vagrant:/vagrant/tournament$ **psql**  
 psql (9.5.6)  
 Type "help" for help.  
 vagrant=> **\i tournament.sql**  
-`
+</pre>
+```
 
 # running unit tests
+```
 <pre>
 vagrant@vagrant:~$ cd /vagrant  
 vagrant@vagrant:/vagrant$ cd tournament  
 vagrant@vagrant:/vagrant/tournament$ python tournament_test.py  
 </pre>
+```
 
 # methods
-**connect()** -- __connect to the tournament database__
-<BR>
-**deleteMatches()** -- __delete all matches__
-<BR>
-**deletePlayers()** -- __delete all players__
-<BR>
-**countPlayers()** -- __count the players__
-<BR>
-**registerPlayer(name)** -- __register a player__
-<BR>
-**playerStandings()** -- __get a list of all players and their statistics sorted by who has won the most matches__
-<BR>
-**reportMatch()** -- __record the results of a match__
-<BR>
-**swissPairings** -- __get the pairings for the next round of the tournament__
-<BR>
+<pre>
+**connect()** -- _connect to the tournament database_
+**deleteMatches()** -- _delete all matches_
+**deletePlayers()** -- _delete all players_
+**countPlayers()** -- _count the players_
+**registerPlayer(name)** -- _register a player_
+**playerStandings()** -- _get a list of all players and their statistics sorted by who has won the most matches_
+**reportMatch()** -- _record the results of a match_
+**swissPairings** -- _get the pairings for the next round of the tournament_
+</pre>
 
 # version
 version 0.1
