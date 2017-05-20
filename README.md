@@ -8,26 +8,17 @@ postgres 9.5.6
 
 # installation
 ` 
-<BR>
-vagrant@vagrant:/vagrant/tournament$ **psql**
-<BR>
-psql (9.5.6)
-<BR>
-Type "help" for help.
-<BR>
-vagrant=> **\i tournament.sql**
-<BR>
+vagrant@vagrant:/vagrant/tournament$ **psql**  
+psql (9.5.6)  
+Type "help" for help.  
+vagrant=> **\i tournament.sql**  
 `
 
 # running unit tests
 ` 
-<BR>
-vagrant@vagrant:~$ cd /vagrant
-<BR>
-vagrant@vagrant:/vagrant$ cd tournament
-<BR>
-vagrant@vagrant:/vagrant/tournament$ python tournament_test.py
-<BR>
+vagrant@vagrant:~$ cd /vagrant  
+vagrant@vagrant:/vagrant$ cd tournament  
+vagrant@vagrant:/vagrant/tournament$ python tournament_test.py  
 `
 
 # methods
