@@ -6,17 +6,9 @@
 -- You can write comments in this file by starting them with two dashes, like
 -- these lines here.
 
-DROP TABLE IF EXISTS players;
-DROP TABLE IF EXISTS player_standings;
-DROP TABLE IF EXISTS matches;
-
-
-CREATE TABLE matches (
-    winner_id int,
-	loser_id int,
-	id serial,
-	PRIMARY KEY(id)
-);
+DROP DATABASE IF EXISTS tournament;
+CREATE DATABASE tournament;
+\c tournament;
 
 CREATE TABLE players (
     name text,
@@ -24,10 +16,35 @@ CREATE TABLE players (
 	PRIMARY KEY(id)
 );
 
-CREATE TABLE player_standings (
-    player_id int,
-	wins int,
-	matches int,
+CREATE TABLE matches (
+    winner_id int references players(id),
+	loser_id int references players(id),
 	id serial,
 	PRIMARY KEY(id)
 );
+
+
+
+
+CREATE VIEW v_wins as
+select players.id, count(matches.id) as wins
+from players left outer join matches
+    on players.id = matches.winner_id
+group by players.id;
+
+CREATE VIEW v_matches as
+select players.id, players.name, count(matches.id) as played
+from players left outer join matches
+    on players.id = matches.winner_id or players.id = matches.loser_id
+group by players.id;
+
+
+
+CREATE VIEW v_rankings as
+    select v_wins.id, v_matches.name, wins, played
+    from v_wins join v_matches
+        on v_wins.id = v_matches.id
+    group by v_wins.id, v_matches.name, v_wins.wins, played
+	order by wins desc;
+
+
