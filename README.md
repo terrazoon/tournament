@@ -9,10 +9,10 @@ postgres 9.5.6
 
 # installation
 ```
-vagrant@vagrant:/vagrant/tournament$ **psql**  
+vagrant@vagrant:/vagrant/tournament$ psql  
 psql (9.5.6)  
 Type "help" for help.  
-vagrant=> **\i tournament.sql**  
+vagrant=> \i tournament.sql  
 ```
 
 # running unit tests
